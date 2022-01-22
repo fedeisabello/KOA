@@ -6,7 +6,8 @@ import pytz
 import joblib
 import numpy as np
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-path = '/home/francosimurro/code/leandrocino/KOA/raw_data'
+
+path = '/home/fedeisabello/code/leandrocino/KOA/raw_data/Imagen'
 
 
 app = FastAPI()
@@ -27,7 +28,7 @@ def index():
 
 
 @app.get("/predict")
-def predict(input):
+def predict(elemento):
     # Prepro
 
     image_generator = ImageDataGenerator(rescale=1./255,
@@ -39,11 +40,13 @@ def predict(input):
                                                     target_size=(224, 224),
                                                     class_mode='categorical')
 
-    imagen_a_pro = imagen_a_pro.reshape(1,224,224,3)
+#    imagen_a_pro = imagen_a_pro.reshape(1,224,224,3)
 
+#    print(type(imagen_a_pro))
+    
     # Prediccion
     model = joblib.load(
-        "/home/francosimurro/code/leandrocino/KOA/raw_data/modelo_lindo.joblib",
+        "/home/fedeisabello/code/leandrocino/KOA/modelo_lindo.joblib",
         mmap_mode=None)
 
 
