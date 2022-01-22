@@ -4,6 +4,9 @@ import pandas as pd
 from datetime import datetime
 import pytz
 import joblib
+import numpy as np
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+path = '/home/francosimurro/code/leandrocino/KOA/raw_data'
 
 
 app = FastAPI()
@@ -22,51 +25,29 @@ def index():
     return {"greeting": "Hello world"}
 
 
-# @app.get("/predict")
-# def predict(pickup_datetime, pickup_longitude, pickup_latitude,
-#             dropoff_longitude, dropoff_latitude, passenger_count):
 
-#     """Arrreglo para la hora de NY"""
-#     # create a datetime object from the user provided datetime
-#     pickup_datetime = "2021-05-30 10:12:00"
-#     pickup_datetime = datetime.strptime(pickup_datetime, "%Y-%m-%d %H:%M:%S")
-#     # localize the user datetime with NYC timezone
-#     eastern = pytz.timezone("US/Eastern")
-#     localized_pickup_datetime = eastern.localize(pickup_datetime, is_dst=None)
-#     # localize the datetime to UTC
-#     utc_pickup_datetime = localized_pickup_datetime.astimezone(pytz.utc)
-#     formatted_pickup_datetime = utc_pickup_datetime.strftime("%Y-%m-%d %H:%M:%S UTC")
+@app.get("/predict")
+def predict(input):
+    # Prepro
 
-#     """Creo el DF"""
+    image_generator = ImageDataGenerator(rescale=1./255,
+                                     preprocessing_function = None,
+                                     )
+    imagen_a_pro = image_generator.flow_from_directory(batch_size=1,
+                                                    directory=path,
+                                                    shuffle=False,
+                                                    target_size=(224, 224),
+                                                    class_mode='categorical')
 
-#     X_pred = pd.DataFrame(columns=[
-#         'key',
-#         'pickup_datetime',
-#         'pickup_longitude',
-#         'pickup_latitude',
-#         'dropoff_longitude',
-#         'dropoff_latitude',
-#         'passenger_count'
-#     ])
+    imagen_a_pro = imagen_a_pro.reshape(1,224,224,3)
 
-#     """Carga de los datos por parte del usuario"""
-
-#     X_pred = X_pred.append(
-#         {
-#             'key': "2013-07-06 17: 18: 00.000000119",
-#             'pickup_datetime': formatted_pickup_datetime,
-#             'pickup_longitude': pickup_longitude,
-#             'pickup_latitude': pickup_latitude,
-#             'dropoff_longitude': dropoff_longitude,
-#             'dropoff_latitude': dropoff_latitude,
-#             'passenger_count': passenger_count
-#         },
-#         ignore_index=True)
-
-#     model = joblib.load("model.joblib", mmap_mode=None)
+    # Prediccion
+    model = joblib.load(
+        "/home/francosimurro/code/leandrocino/KOA/raw_data/modelo_lindo.joblib",
+        mmap_mode=None)
 
 
 
-    #  return {
-            # "prediction": model.predict(X_pred)[0]
-            # }
+    return {
+             "prediction": model.predict(imagen_a_pro)
+            }
