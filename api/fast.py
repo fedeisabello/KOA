@@ -14,7 +14,7 @@ import tensorflow as tf
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 path = 'raw_data/9426434L.png'
-path_model = 'api/modelo_franco_MobileNet121.h5'
+path_model = 'modelo_franco_MobileNet121.h5'
 
 app = FastAPI()
 
@@ -40,4 +40,4 @@ def predict():
     model = tf.keras.models.load_model(path_model, compile=False)
     prediccion = model.predict(imagen_exp)
     aaaa = f"{np.argmax(prediccion, axis=1)}"
-    return {"prediction": aaaa}
+    return {"prediction": aaaa[1]}
