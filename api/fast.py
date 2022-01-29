@@ -13,7 +13,7 @@ import tensorflow as tf
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-path = './raw_data/9426434L.png'
+path = 'raw_data/9426434L.png'
 path_model = 'api/modelo_franco_MobileNet121.h5'
 
 app = FastAPI()
@@ -31,14 +31,13 @@ def index():
     return {"greeting": "Hello world"}
 
 @app.get("/predict")
-def predict(elemento):
+def predict():
     # Prepro
     imagen = Image.open(path)
     imagen = imagen.convert('RGB')
     imagen_np = (np.array(imagen)) / 255
     imagen_exp = np.expand_dims(imagen_np, 0)
-    #model = tf.keras.models.load_model(path_model, compile=False)
-    #prediccion = model.predict(imagen_exp)
-    #aaaa = np.argmax(prediccion, axis=1)
-    return imagen_exp  #{"prediction": "hola"}
-#
+    model = tf.keras.models.load_model(path_model, compile=False)
+    prediccion = model.predict(imagen_exp)
+    aaaa = f"{np.argmax(prediccion, axis=1)}"
+    return {"prediction": aaaa}
