@@ -2,13 +2,19 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 from datetime import datetime
-import pytz
-import joblib
+#import pytz
+#import joblib
 import numpy as np
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+#from tensorflow.keras import models
+#from tensorflow.keras.preprocessing.image import ImageDataGenerator
+import os
+from PIL import Image
+import tensorflow as tf
 
-path = '/home/fedeisabello/code/leandrocino/KOA/raw_data/Imagen'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
+path = './raw_data/9426434L.png'
+path_model = 'api/modelo_franco_MobileNet121.h5'
 
 app = FastAPI()
 
@@ -20,37 +26,19 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-
 @app.get("/")
 def index():
     return {"greeting": "Hello world"}
 
-
-
 @app.get("/predict")
 def predict(elemento):
     # Prepro
-
-    image_generator = ImageDataGenerator(rescale=1./255,
-                                     preprocessing_function = None,
-                                     )
-    imagen_a_pro = image_generator.flow_from_directory(batch_size=1,
-                                                    directory=path,
-                                                    shuffle=False,
-                                                    target_size=(224, 224),
-                                                    class_mode='categorical')
-
-#    imagen_a_pro = imagen_a_pro.reshape(1,224,224,3)
-
-#    print(type(imagen_a_pro))
-    
-    # Prediccion
-    model = joblib.load(
-        "/home/fedeisabello/code/leandrocino/KOA/modelo_lindo.joblib",
-        mmap_mode=None)
-
-
-
-    return {
-             "prediction": model.predict(imagen_a_pro)
-            }
+    imagen = Image.open(path)
+    imagen = imagen.convert('RGB')
+    imagen_np = (np.array(imagen)) / 255
+    imagen_exp = np.expand_dims(imagen_np, 0)
+    #model = tf.keras.models.load_model(path_model, compile=False)
+    #prediccion = model.predict(imagen_exp)
+    #aaaa = np.argmax(prediccion, axis=1)
+    return imagen_exp  #{"prediction": "hola"}
+#
